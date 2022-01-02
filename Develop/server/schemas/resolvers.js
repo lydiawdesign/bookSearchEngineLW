@@ -16,9 +16,14 @@ const resolvers = {
     },
   },
 
-  // Mutation: {
-    
-  // },
+  Mutation: {
+    addUser: async () => {
+      const user = await Profile.create(args);
+      const token = signToken(user);
+
+      return {token, user};
+    },
+  },
 };
 
 module.exports = resolvers;
