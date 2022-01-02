@@ -1,5 +1,5 @@
 const { AuthenticationError } = require('apollo-server-express');
-const { Profile } = require('../models');
+const { User } = require('../models');
 const { signToken } = require('../utils/auth');
 
 const resolvers = {
@@ -12,7 +12,7 @@ const resolvers = {
             return userData;
         }
 
-        throw new AuthenticationError('User is not logged in')
+        throw new AuthenticationError('You need to be logged in!')
     },
   },
 
@@ -21,14 +21,37 @@ const resolvers = {
 
     // Accepts a username, email, and password as parameters; returns an `Auth` type.
     addUser: async (parent, args) => {
-      const user = await Profile.create(args);
+      const user = await User.create(args);
       const token = signToken(user);
 
       return {token, user};
     },
-    // saveBook:Accepts a book author's array, description, title, bookId, image, and link as parameters; returns a `User` type. (Look into creating what's known as an `input` type to handle all of these parameters!)
 
-    // removeBook: Accepts a book's `bookId` as a parameter; returns a `User` type.
+    // Accepts a book author's array, description, title, bookId, image, and link as parameters; returns a `User` type. (Look into creating what's known as an `input` type to handle all of these parameters!)
+    saveBook: async (parent, args, context) => {
+      if (context.user) {
+        const updatedUser = await User.findOneAndUpdate(
+          { _id: context.user._id },
+          { $addToSet: { savedBooks: args.input } },
+          { new: true, runValidators: true }
+        );
+        return updatedUser;
+      }
+      throw new AuthenticationError("You need to be logged in!");
+      },
+    },
+
+    // Accepts a book's `bookId` as a parameter; returns a `User` type.
+    removeBook: async (parent, args, context) => {
+      if(context.user) {
+        const updatedUser = await User.findOneAndUpdate (
+          { _id: context.user._id },
+          { $pull: { savedBooks: { bookId: args.bookId } } },
+          { new: true }
+        );
+        return updatedUser;
+      }
+      throw new AuthenticationError("You need to be logged in!");
   },
 };
 
