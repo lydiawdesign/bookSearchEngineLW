@@ -17,7 +17,23 @@ const resolvers = {
   },
 
   Mutation: {
-    // login: Accepts an email and password as parameters; returns an `Auth` type.
+    // Accepts an email and password as parameters; returns an `Auth` type.
+    login: aysnc (parent, { email, password }) => {
+      const user = await User.findOne(email);
+
+      if (!user) {
+        throw new AuthenticationError("Incorrect credentials- try again!");
+      }
+
+      const correctPassword = await user.isCorrectPassword(password);
+
+      if (!correctPassword) { 
+        throw new AuthenticationError("Incorrect credentials- try again!");
+      }
+
+      const token = signToken(user);
+      return { token, user };
+    },
 
     // Accepts a username, email, and password as parameters; returns an `Auth` type.
     addUser: async (parent, args) => {
