@@ -1,5 +1,5 @@
 const { AuthenticationError } = require('apollo-server-express');
-const { User } = require('../models');
+const { User, Book } = require('../models');
 const { signToken } = require('../utils/auth');
 
 const resolvers = {
@@ -9,17 +9,17 @@ const resolvers = {
         if(context.user) {
             const userData = await User.findOne({_id: context.user._id})
             .select('-__v -password');
-            return userData;
-        }
 
+          return userData;
+        }
         throw new AuthenticationError('You need to be logged in!')
     },
   },
 
   Mutation: {
     // Accepts an email and password as parameters; returns an `Auth` type.
-    login: aysnc (parent, { email, password }) => {
-      const user = await User.findOne(email);
+    login: async (parent, { email, password }) => {
+      const user = await User.findOne({email});
 
       if (!user) {
         throw new AuthenticationError("Incorrect credentials- try again!");
@@ -58,11 +58,11 @@ const resolvers = {
     },
 
     // Accepts a book's `bookId` as a parameter; returns a `User` type.
-    removeBook: async (parent, args, context) => {
+    removeBook: async (parent, { bookId }, context) => {
       if(context.user) {
         const updatedUser = await User.findOneAndUpdate (
           { _id: context.user._id },
-          { $pull: { savedBooks: { bookId: args.bookId } } },
+          { $pull: { savedBooks: { bookId: bookId } } },
           { new: true }
         );
         return updatedUser;
