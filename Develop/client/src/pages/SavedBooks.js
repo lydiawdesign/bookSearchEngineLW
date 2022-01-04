@@ -20,8 +20,7 @@ const SavedBooks = () => {
     return (
       <h3>You need to be logged in to see this page.</h3>
     );
-  }
-},
+  };
 
   // create function that accepts the book's mongo _id value as param and deletes the book from the database
   const handleDeleteBook = async (bookId) => {
@@ -38,27 +37,22 @@ const SavedBooks = () => {
           const data = cache.readQuery({ query: GET_ME });
           const userDataCache = data.me;
           const savedBooksCache = userDataCache.savedBooks;
-          const updatedBookCache = savedBooksCache.filter(
-            (book) => book.bookId !== bookId
-          );
-
+          const updatedBookCache = savedBooksCache.filter((book) => book.bookId !== bookId);
           data.me.savedBooks = updatedBookCache;
           cache.writeQuery({
             query: GET_ME,
             data: { data: { ...data.me.savedBooks } },
           });
-        }
+        },
       });
       
       removeBookId(bookId);
-      } catch (err) {
-        console.error(err);
-      }
-  };
-  if (loading) {
-    return <h2>Loading...</h2>;
-  }
+    }
 
+    catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <>
