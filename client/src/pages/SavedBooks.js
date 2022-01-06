@@ -10,8 +10,8 @@ import { REMOVE_BOOK } from "../utils/mutations";
 
 const SavedBooks = () => {
   const {loading, data} = useQuery(GET_ME);
-  const [deleteBook] = useMutation(REMOVE_BOOK);
-  const userData = data?.me || {};
+  const [removeBook, {error}] = useMutation(REMOVE_BOOK);
+  const userData = data?.me || [];
 
   if (!userData?.username) {
     return (
@@ -28,28 +28,18 @@ const SavedBooks = () => {
     }
 
     try {
-      await deleteBook({
-        variables: {bookId: bookId },
-        update: (cache) => {
-          const data = cache.readQuery({ query: GET_ME });
-          const userDataCache = data.me;
-          const savedBooksCache = userDataCache.savedBooks;
-          const updatedBookCache = savedBooksCache.filter((book) => book.bookId !== bookId);
-          data.me.savedBooks = updatedBookCache;
-          cache.writeQuery({
-            query: GET_ME,
-            data: { data: { ...data.me.savedBooks } },
-          });
-        },
+      const {data} = await removeBook ({
+        variables: { bookId}
       });
-      
       removeBookId(bookId);
-    }
-
-    catch (err) {
+    } catch (err) {
       console.error(err);
     }
   };
+
+  if (loading) {
+    return <h2>LOADING...</h2>;
+  }
 
   return (
     <>
