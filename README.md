@@ -16,6 +16,7 @@ SO THAT I can keep a list of books to purchase
 ```
 
 ## Screenshots
+![image](https://user-images.githubusercontent.com/87274229/148589350-908e5e02-f775-4a8d-9dd6-ce0e5665901d.png)
 
 ## Technology used
 - React
